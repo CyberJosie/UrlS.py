@@ -5,14 +5,16 @@ URL s.py Quickly gathers information available at a URL for multiple HTTP reques
 * GET
 * POST
 * PUT
+* HEAD
 * DELETE
 * OPTIONS
-* HEAD
+* PATCH
+
 
 # Response Information Summary
 Information gathered for each method:
 * Endpoint availability
-* Response Status Code
+* Response Status Code (and English meaning)
 * Response Content Type
 * Response Content Length
 
