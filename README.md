@@ -1,7 +1,20 @@
-# URL_S.py
-URL S.PY Quickly gathers information on an HTTP endpoint about different available request methods.
+# URL S.py
+URL s.py Quickly gathers information available at a URL for multiple HTTP request methods
 
-# URL SPY
+# Supported Methods:
+* GET
+* POST
+* PUT
+* DELETE
+* OPTIONS
+* HEAD
+
+# Response Information Summary
+Information gathered for each method:
+* Endpoint availability
+* Response Status Code
+* Response Content Type
+* Response Content Length
 
 # Installation
 
