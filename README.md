@@ -61,3 +61,50 @@ python3 eye.py \
   --timeout 15 \
   --exclude PATCH
 ```
+```
+URL: https://stackoverflow.com/users/login
+Duration: 21.854 seconds
+ 
+
+ Request Method: GET
+  Request Completed: True
+  Status: 200 (OK)
+  Response Content Type: text/html; charset=utf-8
+  Response Size: Approx. 47365 Bytes
+ 
+
+ Request Method: POST
+  Request Completed: True
+  Status: 200 (OK)
+  Response Content Type: text/html; charset=utf-8
+  Response Size: Approx. 47491 Bytes
+ 
+
+ Request Method: PUT
+  Request Completed: True
+  Status: 404 (Not Found)
+  Response Content Type: text/html; charset=utf-8
+  Response Size: Approx. 44978 Bytes
+ 
+
+ Request Method: HEAD
+  Request Completed: True
+  Status: 200 (OK)
+  Response Content Type: text/html; charset=utf-8
+  Response Size: Approx. 0 Bytes
+ 
+
+ Request Method: DELETE
+  Request Completed: True
+  Status: 404 (Not Found)
+  Response Content Type: text/html; charset=utf-8
+  Response Size: Approx. 44980 Bytes
+ 
+
+ Request Method: OPTIONS
+  Request Completed: True
+  Status: 404 (Not Found)
+  Response Content Type: text/html; charset=utf-8
+  Response Size: Approx. 44980 Bytes
+
+```
