@@ -16,8 +16,6 @@ class Color:
         self.cyan = "\u001b[36m"
         self.white = "\u001b[37m"
 
-
-
 STATUS_CODES = {
 
     # Informational
@@ -95,7 +93,6 @@ STATUS_CODES = {
 }
 
 
-
 class EndpointResult:
     response_content = None
     request_success = False
@@ -108,7 +105,7 @@ class EndpointResult:
 # file rather than STDOUT (pretty colors). If a filetype is not specified,
 # the default type JSON will be selected. All options include: JSON, CSV, 
 # greppable (space separated).
-def export_output(results:list, path:str, format='json', **options):
+def export_output(results:list, path:str, format='json', max_len=-1, **options):
         
     if format == 'greppable':
         pass
@@ -119,12 +116,14 @@ def export_output(results:list, path:str, format='json', **options):
         for result in results:
             for method in list(result[1].keys()):
 
+                
+
                 data = {
                     'Url': result[0],
                     'Method': method,
                     'Request-Success': result[1][method].request_success,
                     'Status-Code': result[1][method].status_code,
-                    'Response-Content': result[1][method].response_content,
+                    'Response-Content': result[1][method].response_content[:max_len] if max_len != -1 and result[1][method].response_content != None else result[1][method].response_content,
                     'Response-Content-Type': result[1][method].response_content_type,
                     'Response-Size-Bytes': result[1][method].response_size,
                     'Request-Error': result[1][method].error,
@@ -166,7 +165,8 @@ def export_output(results:list, path:str, format='json', **options):
                         method,
                         result[1][method].request_success,
                         result[1][method].status_code,
-                        result[1][method].response_content or 'No Content',
+                        # result[1][method].response_content or 'No Content',
+                        result[1][method].response_content[:max_len] if max_len != -1 else result[1][method].response_content or 'No Content',
                         str(result[1][method].response_content_type).replace(';','&'),
                         result[1][method].response_size or 0,
                         result[1][method].error or 'None'
@@ -203,8 +203,8 @@ class EndpointRecon:
             # No errors, yey!
             result.request_success = True
             # Save Response Content
-            result.content = response.content.decode('utf8','ignore')
-            result.response_size = len(result.content)
+            result.response_content = response.content.decode('utf8','ignore')
+            result.response_size = len(result.response_content)
             # Save Response Status
             result.status_code = int(response.status_code)
             # Save Response Content Type
@@ -237,8 +237,8 @@ class EndpointRecon:
             # No errors, yey!
             result.request_success = True
             # Save Response Content
-            result.content = response.content.decode('utf8','ignore')
-            result.response_size = len(result.content)
+            result.response_content = response.content.decode('utf8','ignore')
+            result.response_size = len(result.response_content)
             # Save Response Status
             result.status_code = int(response.status_code)
             # Save Response Content Type
@@ -271,8 +271,8 @@ class EndpointRecon:
             # No errors, yey!
             result.request_success = True
             # Save Response Content
-            result.content = response.content.decode('utf8','ignore')
-            result.response_size = len(result.content)
+            result.response_content = response.content.decode('utf8','ignore')
+            result.response_size = len(result.response_content)
             # Save Response Status
             result.status_code = int(response.status_code)
             # Save Response Content Type
@@ -305,8 +305,8 @@ class EndpointRecon:
             # No errors, yey!
             result.request_success = True
             # Save Response Content
-            result.content = response.content.decode('utf8','ignore')
-            result.response_size = len(result.content)
+            result.response_content = response.content.decode('utf8','ignore')
+            result.response_size = len(result.response_content)
             # Save Response Status
             result.status_code = int(response.status_code)
             # Save Response Content Type
@@ -339,8 +339,8 @@ class EndpointRecon:
             # No errors, yey!
             result.request_success = True
             # Save Response Content
-            result.content = response.content.decode('utf8','ignore')
-            result.response_size = len(result.content)
+            result.response_content = response.content.decode('utf8','ignore')
+            result.response_size = len(result.response_content)
             # Save Response Status
             result.status_code = int(response.status_code)
             # Save Response Content Type
@@ -373,8 +373,8 @@ class EndpointRecon:
             # No errors, yey!
             result.request_success = True
             # Save Response Content
-            result.content = response.content.decode('utf8','ignore')
-            result.response_size = len(result.content)
+            result.response_content = response.content.decode('utf8','ignore')
+            result.response_size = len(result.response_content)
             # Save Response Status
             result.status_code = int(response.status_code)
             # Save Response Content Type
@@ -407,8 +407,8 @@ class EndpointRecon:
             # No errors, yey!
             result.request_success = True
             # Save Response Content
-            result.content = response.content.decode('utf8','ignore')
-            result.response_size = len(result.content)
+            result.response_content = response.content.decode('utf8','ignore')
+            result.response_size = len(result.response_content)
             # Save Response Status
             result.status_code = int(response.status_code)
             # Save Response Content Type
@@ -511,13 +511,14 @@ def main(args: list):
     except_=[]
     output = None
     output_format = None
+    max_content_size = -1
     c = Color()
     recon = EndpointRecon()
 
     # Select URL from args
     if args.url != None:
         urls.append(args.url)
-    
+    # Or a file of URLs
     elif args.url_file != None:
         lines = []
         try:
@@ -529,10 +530,10 @@ def main(args: list):
             return -1
         
         [urls.append(url.strip()) for url in lines if url not in ['', ' ', '\n'] and url.startswith('http')]
+    # But its required :c
     else:
         print('Error: URL is required.')
         return -1
-    
     
     # Select Proxy from args
     if args.proxy != None:
@@ -543,8 +544,6 @@ def main(args: list):
     # Select method exceptions
     if args.exclude != None:
         except_ = [e.strip().upper() for e in str(args.exclude).split(',')]
-    
-
     
     if args.timeout != None:
         recon.use_timeout = int(args.timeout)
@@ -557,6 +556,11 @@ def main(args: list):
         else:
             output_format = 'json'
     
+    if args.shrink_content != None:
+        if str(args.shrink_content).lower() == 'none':
+            max_content_size = -1
+        else:
+            max_content_size = int(args.shrink_content)
     
 
     # Run analysis
@@ -581,37 +585,27 @@ def main(args: list):
                 print('  {}Status:{} {}{}{} ({})'.format(c.cyan,c.reset,c.yellow,res[k].status_code,c.reset, STATUS_CODES[res[k].status_code] if res[k].status_code in list(STATUS_CODES.keys()) else 'Unknown'))
                 print('  {}Response Content Type:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].response_content_type,c.reset))
                 print('  {}Response Size:{} {}Approx. {}{}{} Bytes{}'.format(c.cyan,c.reset,c.white,c.yellow,res[k].response_size,c.white,c.reset))
+                print('  {}Content:{}{}\n'.format(c.cyan,c.reset,res[k].response_content[:max_content_size]))
                 print(' \n')
 
                 if res[k].error != None:
                     print('Error: {}{}{}'.format(c.red,res[k].error,c.reset))
     
     if output != None and output_format != None:
-        export_output(results,output,output_format)
+        print("Results saved to {} as select format: \'{}\'.".format(output,output_format.upper()))
+        export_output(results,output,output_format,max_content_size)
         
 
 if __name__ == "__main__":
-    c = Color()
+    # c = Color()
     requests.packages.urllib3.disable_warnings()
     
     parser = argparse.ArgumentParser(
         prog='URL Spy',
         formatter_class=argparse.RawTextHelpFormatter,
-        # description='Quickly get a glimpse of available HTTP request methods allowed (or not) at a specific endpoint to identify important information for further investigation.',
         description=textwrap.dedent('''
                 Quickly check the availability of mulitple HTTP request methods of a URL
                 and discover necessary information for further analysis.
-
-                This is not meant to be a replacement for the existing tools used for this purpose
-                (e.g Postman), it is meant to be used as a pre-analysis tool intended to save
-                you time crafing custom HTTP requests and analyzing endpoints. By using this tool
-                you can quickly identify key attributes of an endpoint.
-
-                            * URL Availability
-                            * Status Code (and English meaning)
-                            * Response Payload
-                            * Response Content Type
-                            * Response Size
             
         '''),
         epilog=textwrap.dedent('''\
@@ -652,10 +646,10 @@ if __name__ == "__main__":
     parser.add_argument('--exclude', '-ex',
         action='store',
         type=str,
-        # help=''
         help=textwrap.dedent('''
         Comma separated list of HTTP request methods to NOT CHECK. Errors ignored.
-        Default: GET,POST,PUT,HEAD,DELETE,OPTIONS,PATCH
+        Full list: GET,POST,PUT,HEAD,DELETE,OPTIONS,PATCH
+        Default: None
         Required: False\n
         ''')
     )
@@ -674,7 +668,7 @@ if __name__ == "__main__":
         action='store',
         type=str,
         help=textwrap.dedent('''
-        Path to redirect output to.
+        Path to redirect output to
         Default: Print to STDOUT
         Required: False\n
         ''')
@@ -689,7 +683,18 @@ if __name__ == "__main__":
         Required: False\n
         ''')
     )
-    
+
+    parser.add_argument('--shrink-content', '-K',
+        action='store',
+        type=int,
+        default=250,
+        help=textwrap.dedent('''
+        Shrink response content to a maximum size. (Use '-1' to remove limit)
+        Use a smaller number for CSV
+        Default: 250
+        Required: False\n
+        ''')
+    )
 
     args = parser.parse_args()
     main(args)
