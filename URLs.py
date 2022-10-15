@@ -5,6 +5,18 @@ import csv
 import requests
 import argparse
 
+class Color:
+    def __init__(self):
+        self.reset = "\u001b[0m"
+        self.red = "\u001b[31m"
+        self.green = "\u001b[32m"
+        self.yellow = "\u001b[33m"
+        self.blue = "\u001b[34m"
+        self.magenta = "\u001b[35m"
+        self.cyan = "\u001b[36m"
+        self.white = "\u001b[37m"
+
+
 
 STATUS_CODES = {
 
@@ -80,20 +92,9 @@ STATUS_CODES = {
     508: 'Loop Detected (WebDAV)',
     510: 'Not Extended',
     511: 'Network Authentication Required',
-
 }
 
 
-class Color:
-    def __init__(self):
-        self.reset = "\u001b[0m"
-        self.red = "\u001b[31m"
-        self.green = "\u001b[32m"
-        self.yellow = "\u001b[33m"
-        self.blue = "\u001b[34m"
-        self.magenta = "\u001b[35m"
-        self.cyan = "\u001b[36m"
-        self.white = "\u001b[37m"
 
 class EndpointResult:
     response_content = None
@@ -103,22 +104,19 @@ class EndpointResult:
     status_code = 0
     error = None
 
-    def empty(self):
-        empty = False
-        if self.response_content == None and self.request_success == False and self.response_content_type == "Not Specificed" and self.response_size == 0 and self.status_code == 0 and error == None:
-            empty = True
-        return empty
+    # def empty(self):
+    #     empty = False
+    #     if self.response_content == None and self.request_success == False and self.response_content_type == "Not Specificed" and self.response_size == 0 and self.status_code == 0 and self.error == None:
+    #         empty = True
+    #     return empty
     
-        
-
-        
-def export_output(results: list, path:str, format='json', **options):
-    
+              
+def export_output(results:list, path:str, format='json', **options):
         
     if format == 'greppable':
         pass
 
-    elif format == 'json':
+    elif format.lower() == 'json':
         json_objects = []
 
         for result in results:
@@ -135,7 +133,7 @@ def export_output(results: list, path:str, format='json', **options):
 
                 json_objects.append(data)
 
-        indent = 0
+        indent = 2
         if 'indent' in list(options.keys()):
             if type(options['indent']) == int:
                 indent = options['indent']
@@ -144,7 +142,7 @@ def export_output(results: list, path:str, format='json', **options):
                 f.write(json.dumps(json_objects, indent=indent))
             
 
-    elif format == 'csv':
+    elif format.lower() == 'csv':
         header = [
             'Request-Success',
             'Status-Code',
@@ -419,7 +417,7 @@ class EndpointRecon:
         return result
 
         
-    def begin(self, url, except_: list=[ 'OPTIONS', 'PATCH', ]):
+    def begin(self, url, except_: list=[]):
         scan_results = {}
         except_ = [e.upper() for e in except_]
 
@@ -591,7 +589,6 @@ def main(args: list):
                     print('Error: {}{}{}'.format(c.red,res[k].error,c.reset))
     
     if output != None and output_format != None:
-
         export_output(results,output,output_format)
 
     
@@ -609,10 +606,10 @@ if __name__ == "__main__":
                 Quickly check the availability of mulitple HTTP request methods of a URL
                 and discover necessary information for further analysis.
 
-                This is not meant to be a replacement to the existing tools for this purpose
+                This is not meant to be a replacement for the existing tools used for this purpose
                 (e.g Postman), it is meant to be used as a pre-analysis tool intended to save
-                you time crafing custom HTTP requests. By using this tool you can quickly 
-                identify key attributes of an endpoint.
+                you time crafing custom HTTP requests and analyzing endpoints. By using this tool
+                you can quickly identify key attributes of an endpoint.
 
                             * URL Availability
                             * Status Code (and English meaning)
@@ -629,56 +626,74 @@ if __name__ == "__main__":
     parser.add_argument('--url', '-u',
         action='store',
         type=str,
-        help='URL (host and endpoint together) to investigate'
+        help=textwrap.dedent('''
+        URL (host and endpoint together) to investigate.
+        Default: None
+        Required: True\n
+        ''')
     )
 
     parser.add_argument('--url-file', '-uf',
         action='store',
         type=str,
-        help='Path to file of URLs to analyze. (URLs are newline separated)'
+        help=textwrap.dedent('''
+        Path to file of URLs to analyze. (URLs are newline separated).
+        Default: None
+        Required: True (If a single URL is not given)\n
+        ''')
     )
 
     parser.add_argument('--timeout', '-t',
         action='store',
         type=int,
-        help='Max seconds to wait for each server response'
+        help=textwrap.dedent('''
+        Max seconds to wait for each server response
+        Default: 10
+        Required: False\n
+        ''')        
     )
 
     parser.add_argument('--exclude', '-ex',
         action='store',
         type=str,
-        help='Comma separated list of HTTP request methods to NOT CHECK. (Errors ignored)'
+        # help=''
+        help=textwrap.dedent('''
+        Comma separated list of HTTP request methods to NOT CHECK. Errors ignored.
+        Default: GET,POST,PUT,HEAD,DELETE,OPTIONS,PATCH
+        Required: False\n
+        ''')
     )
 
     parser.add_argument('--proxy', '-rp',
         action='store',
         type=str,
-        help='Proxy to send requests through',
-    )
-
-    parser.add_argument('--headers', '-rh',
-        action='store',
-        type=str,
-        help='JSON serializable string of custom headers (Optional)'
-    )
-
-    parser.add_argument('--data', '-rd',
-        action='store',
-        type=str,
-        help='Custom JSON data (Optional)'
+        help=textwrap.dedent('''
+        Proxy to send requests through
+        Default: None
+        Required: False\n
+        ''')
     )
 
     parser.add_argument('--output', '-o',
         action='store',
         type=str,
-        help='Path to redirect output to.'
+        help=textwrap.dedent('''
+        Path to redirect output to.
+        Default: Print to STDOUT
+        Required: False\n
+        ''')
     )
 
     parser.add_argument('--output-format', '-fmt',
         action='store',
         type=str,
-        help='Formatting to export output as. Options: JSON, CSV, greppable'
+        help=textwrap.dedent('''
+        Formatting to export output as. Options: JSON, CSV, greppable
+        Default: JSON (If only output flag is given, else there is no default)
+        Required: False\n
+        ''')
     )
+    
 
     args = parser.parse_args()
     main(args)
