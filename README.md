@@ -15,6 +15,11 @@ UrlS.py Quickly gathers information available at a URL for multiple HTTP request
 * JSON
 * CSV
 
+# Download
+```
+wget https://raw.githubusercontent.com/CyberJosie/UrlS.py/main/UrlS.py
+python3 UrlS.py --help
+```
 
 # Usage
 
