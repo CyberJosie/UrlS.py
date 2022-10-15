@@ -496,13 +496,13 @@ if __name__ == "__main__":
     parser.add_argument('--url', '-u',
         action='store',
         type=str,
-        help='URL (host + endpoint together) to investigate.'
+        help='URL (host and endpoint together) to investigate'
     )
 
     parser.add_argument('--timeout', '-t',
         action='store',
         type=int,
-        help='Max seconds to wait for each server response.'
+        help='Max seconds to wait for each server response'
     )
 
     parser.add_argument('--exclude', '-ex',
@@ -514,13 +514,13 @@ if __name__ == "__main__":
     parser.add_argument('--proxy', '-rp',
         action='store',
         type=str,
-        help='Proxy to send requests through.',
+        help='Proxy to send requests through',
     )
 
     parser.add_argument('--headers', '-rh',
         action='store',
         type=str,
-        help='JSON serializable string with custom headers (Optional)'
+        help='JSON serializable string of custom headers (Optional)'
     )
 
     parser.add_argument('--data', '-rd',
