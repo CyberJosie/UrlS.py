@@ -10,20 +10,10 @@ UrlS.py Quickly gathers information available at a URL for multiple HTTP request
 * OPTIONS
 * PATCH
 
-
-# Response Information Summary
-Information gathered for each method:
-* Endpoint availability
-* Response Status Code (and English meaning)
-* Response Content Type
-* Response Content Length
-
-# Installation
-
-```
-wget 
-python3 eye.py --help
-```
+# View Output As...
+* Colored terminal output for legibility
+* JSON
+* CSV
 
 
 # Usage
