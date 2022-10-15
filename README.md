@@ -86,7 +86,6 @@ Find on GitHub: https://github.com/CyberJosie/URLs.py
 
 # Examples
 
-Scan all methods except `PATCH` over the Tor network using a 15 second max HTTP timeout
 ```
 python3 UrlS.py \
   --url https://stackoverflow.com/users/login \
