@@ -88,7 +88,7 @@ Find on GitHub: https://github.com/CyberJosie/URLs.py
 
 Scan all methods except `PATCH` over the Tor network using a 15 second max HTTP timeout
 ```
-python3 eye.py \
+python3 UrlS.py \
   --url https://stackoverflow.com/users/login \
   --proxy socks5://127.0.0.1:9050 \
   --timeout 15 \
