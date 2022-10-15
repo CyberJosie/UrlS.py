@@ -610,13 +610,14 @@ def main(args: list):
         
 
 if __name__ == "__main__":
-    # c = Color()
     requests.packages.urllib3.disable_warnings()
     
     parser = argparse.ArgumentParser(
         prog='URL Spy',
         formatter_class=argparse.RawTextHelpFormatter,
-        description=textwrap.dedent('''
+        description=textwrap.dedent(f'''
+
+                       {logo}
                 Quickly check the availability of mulitple HTTP request methods of a URL
                 and discover necessary information for further analysis.
             
