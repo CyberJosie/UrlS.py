@@ -103,32 +103,31 @@ class EndpointResult:
     response_size = 0
     status_code = 0
     error = None
-
-    # def empty(self):
-    #     empty = False
-    #     if self.response_content == None and self.request_success == False and self.response_content_type == "Not Specificed" and self.response_size == 0 and self.status_code == 0 and self.error == None:
-    #         empty = True
-    #     return empty
     
-              
+# If an output location is specified the output will be redirected to a
+# file rather than STDOUT (pretty colors). If a filetype is not specified,
+# the default type JSON will be selected. All options include: JSON, CSV, 
+# greppable (space separated).
 def export_output(results:list, path:str, format='json', **options):
         
     if format == 'greppable':
         pass
 
     elif format.lower() == 'json':
+        # Create a list of JSON obkjects
         json_objects = []
-
         for result in results:
-            for method in list(result.keys()):
+            for method in list(result[1].keys()):
 
                 data = {
-                    'Request-Success': result[method].request_success,
-                    'Status-Code': result[method].status_code,
-                    'Response-Content': result[method].response_content,
-                    'Response-Content-Type': result[method].response_content_type,
-                    'Response-Size-Bytes': result[method].response_size,
-                    'Request-Error': result[method].error,
+                    'Url': result[0],
+                    'Method': method,
+                    'Request-Success': result[1][method].request_success,
+                    'Status-Code': result[1][method].status_code,
+                    'Response-Content': result[1][method].response_content,
+                    'Response-Content-Type': result[1][method].response_content_type,
+                    'Response-Size-Bytes': result[1][method].response_size,
+                    'Request-Error': result[1][method].error,
                 }
 
                 json_objects.append(data)
@@ -144,6 +143,8 @@ def export_output(results:list, path:str, format='json', **options):
 
     elif format.lower() == 'csv':
         header = [
+            'Url',
+            'Method',
             'Request-Success',
             'Status-Code',
             'Response-Content',
@@ -158,15 +159,17 @@ def export_output(results:list, path:str, format='json', **options):
             writer.writerow(header)
 
             for result in results:
-                for method in list(result.keys()):
+                for method in list(result[1].keys()):
                 
                     data = [
-                        result[method].request_success,
-                        result[method].status_code,
-                        result[method].response_content or 'No Content',
-                        str(result[method].response_content_type).replace(';','&'),
-                        result[method].response_size or 0,
-                        result[method].error or 'None'
+                        result[0],
+                        method,
+                        result[1][method].request_success,
+                        result[1][method].status_code,
+                        result[1][method].response_content or 'No Content',
+                        str(result[1][method].response_content_type).replace(';','&'),
+                        result[1][method].response_size or 0,
+                        result[1][method].error or 'None'
                     ]
                     writer.writerow(data)
                 
@@ -563,7 +566,7 @@ def main(args: list):
         res, duration = recon.begin(
             url,
             except_=except_ )
-        results.append(res)
+        results.append((url,res))
 
         if output == None and output_format == None:
     
@@ -574,7 +577,7 @@ def main(args: list):
 
             for k in list(res.keys()):
                 print(' {}Request Method:{} {}{}{}'.format(c.cyan,c.reset,c.green,k,c.reset))
-                print('  {}Request Completed:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].success,c.reset))
+                print('  {}Request Completed:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].request_success,c.reset))
                 print('  {}Status:{} {}{}{} ({})'.format(c.cyan,c.reset,c.yellow,res[k].status_code,c.reset, STATUS_CODES[res[k].status_code] if res[k].status_code in list(STATUS_CODES.keys()) else 'Unknown'))
                 print('  {}Response Content Type:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].response_content_type,c.reset))
                 print('  {}Response Size:{} {}Approx. {}{}{} Bytes{}'.format(c.cyan,c.reset,c.white,c.yellow,res[k].response_size,c.white,c.reset))
@@ -585,8 +588,6 @@ def main(args: list):
     
     if output != None and output_format != None:
         export_output(results,output,output_format)
-
-    
         
 
 if __name__ == "__main__":
