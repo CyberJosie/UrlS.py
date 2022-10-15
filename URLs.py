@@ -530,7 +530,6 @@ def main(args: list):
         print('Error: URL is required.')
         return -1
     
-  
     
     # Select Proxy from args
     if args.proxy != None:
@@ -542,11 +541,7 @@ def main(args: list):
     if args.exclude != None:
         except_ = [e.strip().upper() for e in str(args.exclude).split(',')]
     
-    if args.data != None:
-        recon.use_data = json.loads(args.data)
-    
-    if args.headers != None:
-        recon.use_headers = json.loads(args.headers)
+
     
     if args.timeout != None:
         recon.use_timeout = int(args.timeout)
