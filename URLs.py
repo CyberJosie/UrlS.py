@@ -1,4 +1,7 @@
+import textwrap
 import time
+import json
+import csv
 import requests
 import argparse
 
@@ -93,12 +96,82 @@ class Color:
         self.white = "\u001b[37m"
 
 class EndpointResult:
-    content = None
-    success = False
-    response_content_type = "Unknown"
+    response_content = None
+    request_success = False
+    response_content_type = "Not Specificed"
     response_size = 0
     status_code = 0
     error = None
+
+    def empty(self):
+        empty = False
+        if self.response_content == None and self.request_success == False and self.response_content_type == "Not Specificed" and self.response_size == 0 and self.status_code == 0 and error == None:
+            empty = True
+        return empty
+    
+        
+
+        
+def export_output(results: list, path:str, format='json', **options):
+    
+        
+    if format == 'greppable':
+        pass
+
+    elif format == 'json':
+        json_objects = []
+
+        for result in results:
+            for method in list(result.keys()):
+
+                data = {
+                    'Request-Success': result[method].request_success,
+                    'Status-Code': result[method].status_code,
+                    'Response-Content': result[method].response_content,
+                    'Response-Content-Type': result[method].response_content_type,
+                    'Response-Size-Bytes': result[method].response_size,
+                    'Request-Error': result[method].error,
+                }
+
+                json_objects.append(data)
+
+        indent = 0
+        if 'indent' in list(options.keys()):
+            if type(options['indent']) == int:
+                indent = options['indent']
+        
+        with open(path, 'w') as f:
+                f.write(json.dumps(json_objects, indent=indent))
+            
+
+    elif format == 'csv':
+        header = [
+            'Request-Success',
+            'Status-Code',
+            'Response-Content',
+            'Response-Content-Type',
+            'Response-Size-Bytes',
+            'Request-Error',
+        ]
+
+        
+        with open(path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+
+            for result in results:
+                for method in list(result.keys()):
+                
+                    data = [
+                        result[method].request_success,
+                        result[method].status_code,
+                        result[method].response_content or 'No Content',
+                        str(result[method].response_content_type).replace(';','&'),
+                        result[method].response_size or 0,
+                        result[method].error or 'None'
+                    ]
+                    writer.writerow(data)
+                
 
 class EndpointRecon:
     def __init__(self):
@@ -431,19 +504,35 @@ class EndpointRecon:
         
         return scan_results, duration
 
-
+# MAIN
 def main(args: list):
-    recon = EndpointRecon()
-    c = Color()
-    url = ''
+    urls = []
     except_=[]
+    output = None
+    output_format = None
+    c = Color()
+    recon = EndpointRecon()
 
     # Select URL from args
     if args.url != None:
-        url = str(args.url)
+        urls.append(args.url)
+    
+    elif args.url_file != None:
+        lines = []
+        try:
+            with open(str(args.url_file), 'r', encoding='utf8', errors='ignore') as f:
+                lines = f.readlines()
+        except Exception as err:
+            print("{}Error while reading from URL file: \'{}\'{}".format(c.red,args.url_file,c.reset))
+            print(err)
+            return -1
+        
+        [urls.append(url.strip()) for url in lines if url not in ['', ' ', '\n'] and url.startswith('http')]
     else:
         print('Error: URL is required.')
         return -1
+    
+  
     
     # Select Proxy from args
     if args.proxy != None:
@@ -456,47 +545,97 @@ def main(args: list):
         except_ = [e.strip().upper() for e in str(args.exclude).split(',')]
     
     if args.data != None:
-        recon.use_data = args.data
+        recon.use_data = json.loads(args.data)
     
     if args.headers != None:
-        recon.use_headers = args.headers
+        recon.use_headers = json.loads(args.headers)
     
     if args.timeout != None:
         recon.use_timeout = int(args.timeout)
+    
+    if args.output != None:
+        output = args.output
+
+        if args.output_format != None:
+            output_format = args.output_format
+        else:
+            output_format = 'json'
+    
+    
+
+    # Run analysis
+    results = []
+    for url in urls:
+        
+        res, duration = recon.begin(
+            url,
+            except_=except_ )
+        results.append(res)
+
+        if output == None and output_format == None:
+    
+            # Print result
+            print('{}URL:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,url,c.reset))
+            print('{}Duration:{} {}{}{} seconds'.format(c.cyan,c.reset,c.yellow,str(duration),c.reset))
+            print(' \n')
+
+            for k in list(res.keys()):
+                print(' {}Request Method:{} {}{}{}'.format(c.cyan,c.reset,c.green,k,c.reset))
+                print('  {}Request Completed:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].success,c.reset))
+                print('  {}Status:{} {}{}{} ({})'.format(c.cyan,c.reset,c.yellow,res[k].status_code,c.reset, STATUS_CODES[res[k].status_code] if res[k].status_code in list(STATUS_CODES.keys()) else 'Unknown'))
+                print('  {}Response Content Type:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].response_content_type,c.reset))
+                print('  {}Response Size:{} {}Approx. {}{}{} Bytes{}'.format(c.cyan,c.reset,c.white,c.yellow,res[k].response_size,c.white,c.reset))
+                print(' \n')
+
+                if res[k].error != None:
+                    print('Error: {}{}{}'.format(c.red,res[k].error,c.reset))
+    
+    if output != None and output_format != None:
+
+        export_output(results,output,output_format)
 
     
-    res, duration = recon.begin(
-        url,
-        except_=except_
-    )
-    print('{}URL:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,url,c.reset))
-    print('{}Duration:{} {}{}{} seconds'.format(c.cyan,c.reset,c.yellow,str(duration),c.reset))
-    print(' \n')
-
-    for k in list(res.keys()):
-        print(' {}Request Method:{} {}{}{}'.format(c.cyan,c.reset,c.green,k,c.reset))
-        print('  {}Request Completed:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].success,c.reset))
-        print('  {}Status:{} {}{}{} ({})'.format(c.cyan,c.reset,c.yellow,res[k].status_code,c.reset, STATUS_CODES[res[k].status_code] if res[k].status_code in list(STATUS_CODES.keys()) else 'Unknown'))
-        print('  {}Response Content Type:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].response_content_type,c.reset))
-        print('  {}Response Size:{} {}Approx. {}{}{} Bytes{}'.format(c.cyan,c.reset,c.white,c.yellow,res[k].response_size,c.white,c.reset))
-        print(' \n')
-
-        if res[k].error != None:
-            print('Error: {}{}{}'.format(c.red,res[k].error,c.reset))
         
 
 if __name__ == "__main__":
+    c = Color()
     requests.packages.urllib3.disable_warnings()
     
     parser = argparse.ArgumentParser(
-        prog='Endpoint Eye',
-        description='Quickly get a glimpse of available HTTP request methods allowed (or not) at a specific endpoint to identify important information for further investigation.'
+        prog='URL Spy',
+        formatter_class=argparse.RawTextHelpFormatter,
+        # description='Quickly get a glimpse of available HTTP request methods allowed (or not) at a specific endpoint to identify important information for further investigation.',
+        description=textwrap.dedent('''
+                Quickly check the availability of mulitple HTTP request methods of a URL
+                and discover necessary information for further analysis.
+
+                This is not meant to be a replacement to the existing tools for this purpose
+                (e.g Postman), it is meant to be used as a pre-analysis tool intended to save
+                you time crafing custom HTTP requests. By using this tool you can quickly 
+                identify key attributes of an endpoint.
+
+                            * URL Availability
+                            * Status Code (and English meaning)
+                            * Response Payload
+                            * Response Content Type
+                            * Response Size
+            
+        '''),
+        epilog=textwrap.dedent('''\
+            Find on GitHub: https://github.com/CyberJosie/URLs.py
+        ''')
     )
 
     parser.add_argument('--url', '-u',
         action='store',
         type=str,
         help='URL (host and endpoint together) to investigate'
+    )
+
+    parser.add_argument('--url-file', '-uf',
+        action='store',
+        type=str,
+        help='Path to file of URLs to analyze. (URLs are newline separated)'
     )
 
     parser.add_argument('--timeout', '-t',
@@ -527,6 +666,18 @@ if __name__ == "__main__":
         action='store',
         type=str,
         help='Custom JSON data (Optional)'
+    )
+
+    parser.add_argument('--output', '-o',
+        action='store',
+        type=str,
+        help='Path to redirect output to.'
+    )
+
+    parser.add_argument('--output-format', '-fmt',
+        action='store',
+        type=str,
+        help='Formatting to export output as. Options: JSON, CSV, greppable'
     )
 
     args = parser.parse_args()
