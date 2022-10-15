@@ -5,6 +5,15 @@ import csv
 import requests
 import argparse
 
+logo = """
+   __  __     __   _____             
+  / / / /____/ /  / ___/  ____  __  __
+ / / / / ___/ /   \__ \  / __ \/ / / /
+/ /_/ / /  / /   ___/ / / /_/ / /_/ / 
+\____/_/  /_/   /____(_) .___/\__, /  
+                      /_/    /____/   
+"""
+
 class Color:
     def __init__(self):
         self.reset = "\u001b[0m"
@@ -515,6 +524,9 @@ def main(args: list):
     c = Color()
     recon = EndpointRecon()
 
+    
+    print(logo)
+
     # Select URL from args
     if args.url != None:
         urls.append(args.url)
@@ -533,6 +545,7 @@ def main(args: list):
     # But its required :c
     else:
         print('Error: URL is required.')
+        print('Use \'--help\' or \'-h\' to see the help menu.')
         return -1
     
     # Select Proxy from args
@@ -695,6 +708,7 @@ if __name__ == "__main__":
         Required: False\n
         ''')
     )
+
 
     args = parser.parse_args()
     main(args)
