@@ -21,20 +21,17 @@ UrlS.py Quickly gathers information available at a URL for multiple HTTP request
 ```
 usage: URL Spy [-h] [--url URL] [--url-file URL_FILE] [--timeout TIMEOUT] [--exclude EXCLUDE]
                [--proxy PROXY] [--output OUTPUT] [--output-format OUTPUT_FORMAT]
+               [--shrink-content SHRINK_CONTENT]
 
-Quickly check the availability of mulitple HTTP request methods of a URL
-and discover necessary information for further analysis.
+   __  __     __   _____             
+  / / / /____/ /  / ___/  ____  __  __
+ / / / / ___/ /   \__ \  / __ \/ / / /
+/ /_/ / /  / /   ___/ / / /_/ / /_/ / 
+\____/_/  /_/   /____(_) .___/\__, /  
+                      /_/    /____/   
 
-This is not meant to be a replacement for the existing tools used for this purpose
-(e.g Postman), it is meant to be used as a pre-analysis tool intended to save
-you time crafing custom HTTP requests and analyzing endpoints. By using this tool
-you can quickly identify key attributes of an endpoint.
-
-            * URL Availability
-            * Status Code (and English meaning)
-            * Response Payload
-            * Response Content Type
-            * Response Size
+                Quickly check the availability of mulitple HTTP request methods of a URL
+                and discover necessary information for further analysis.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -58,7 +55,8 @@ optional arguments:
   --exclude EXCLUDE, -ex EXCLUDE
                         
                         Comma separated list of HTTP request methods to NOT CHECK. Errors ignored.
-                        Default: GET,POST,PUT,HEAD,DELETE,OPTIONS,PATCH
+                        Full list: GET,POST,PUT,HEAD,DELETE,OPTIONS,PATCH
+                        Default: None
                         Required: False
                         
   --proxy PROXY, -rp PROXY
@@ -69,7 +67,7 @@ optional arguments:
                         
   --output OUTPUT, -o OUTPUT
                         
-                        Path to redirect output to.
+                        Path to redirect output to
                         Default: Print to STDOUT
                         Required: False
                         
@@ -77,6 +75,13 @@ optional arguments:
                         
                         Formatting to export output as. Options: JSON, CSV, greppable
                         Default: JSON (If only output flag is given, else there is no default)
+                        Required: False
+                        
+  --shrink-content SHRINK_CONTENT, -K SHRINK_CONTENT
+                        
+                        Shrink response content to a maximum size. (Use '-1' to remove limit)
+                        Use a smaller number for CSV
+                        Default: 250
                         Required: False
                         
 
