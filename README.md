@@ -1,5 +1,5 @@
-# URL S.py
-URL s.py Quickly gathers information available at a URL for multiple HTTP request methods
+# UrlS.py
+UrlS.py Quickly gathers information available at a URL for multiple HTTP request methods
 
 # Supported Methods:
 * GET
