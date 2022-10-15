@@ -198,7 +198,7 @@ class EndpointRecon:
         
         if response != None:
             # No errors, yey!
-            result.success = True
+            result.request_success = True
             # Save Response Content
             result.content = response.content.decode('utf8','ignore')
             result.response_size = len(result.content)
@@ -232,7 +232,7 @@ class EndpointRecon:
         
         if response != None:
             # No errors, yey!
-            result.success = True
+            result.request_success = True
             # Save Response Content
             result.content = response.content.decode('utf8','ignore')
             result.response_size = len(result.content)
@@ -266,7 +266,7 @@ class EndpointRecon:
         
         if response != None:
             # No errors, yey!
-            result.success = True
+            result.request_success = True
             # Save Response Content
             result.content = response.content.decode('utf8','ignore')
             result.response_size = len(result.content)
@@ -300,7 +300,7 @@ class EndpointRecon:
         
         if response != None:
             # No errors, yey!
-            result.success = True
+            result.request_success = True
             # Save Response Content
             result.content = response.content.decode('utf8','ignore')
             result.response_size = len(result.content)
@@ -334,7 +334,7 @@ class EndpointRecon:
         
         if response != None:
             # No errors, yey!
-            result.success = True
+            result.request_success = True
             # Save Response Content
             result.content = response.content.decode('utf8','ignore')
             result.response_size = len(result.content)
@@ -368,7 +368,7 @@ class EndpointRecon:
         
         if response != None:
             # No errors, yey!
-            result.success = True
+            result.request_success = True
             # Save Response Content
             result.content = response.content.decode('utf8','ignore')
             result.response_size = len(result.content)
@@ -402,7 +402,7 @@ class EndpointRecon:
         
         if response != None:
             # No errors, yey!
-            result.success = True
+            result.request_success = True
             # Save Response Content
             result.content = response.content.decode('utf8','ignore')
             result.response_size = len(result.content)
