@@ -593,12 +593,27 @@ def main(args: list):
             print(' \n')
 
             for k in list(res.keys()):
-                print(' {}Request Method:{} {}{}{}'.format(c.cyan,c.reset,c.green,k,c.reset))
-                print('  {}Request Completed:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].request_success,c.reset))
-                print('  {}Status:{} {}{}{} ({})'.format(c.cyan,c.reset,c.yellow,res[k].status_code,c.reset, STATUS_CODES[res[k].status_code] if res[k].status_code in list(STATUS_CODES.keys()) else 'Unknown'))
-                print('  {}Response Content Type:{} {}{}{}'.format(c.cyan,c.reset,c.yellow,res[k].response_content_type,c.reset))
-                print('  {}Response Size:{} {}Approx. {}{}{} Bytes{}'.format(c.cyan,c.reset,c.white,c.yellow,res[k].response_size,c.white,c.reset))
-                print('  {}Content:{}{}\n'.format(c.cyan,c.reset,res[k].response_content[:max_content_size]))
+                
+                print(' {}Request Method:{} {}{}{}'.format(
+                    c.cyan, c.reset, c.green, k, c.reset ) )
+
+                print('  {}Request Completed:{} {}{}{}'.format(
+                    c.cyan, c.reset, c.yellow, res[k].request_success, c.reset ) )
+                
+                print('  {}Status:{} {}{}{} ({})'.format(
+                    c.cyan, c.reset, c.yellow, res[k].status_code, c.reset,
+                    STATUS_CODES[res[k].status_code] if res[k].status_code in list(STATUS_CODES.keys()) else 'Unknown' ) )
+                
+                print('  {}Response Content Type:{} {}{}{}'.format(
+                    c.cyan, c.reset, c.yellow, res[k].response_content_type, c.reset ) )
+
+                print('  {}Response Size:{} {}Approx. {}{}{} Bytes{}'.format(
+                    c.cyan, c.reset, c.white, c.yellow, res[k].response_size, c.white, c.reset ) )
+
+                print('  {}Content:{}{}\n'.format(
+                    c.cyan, c.reset,
+                    res[k].response_content[:max_content_size] or 'Not Available' ) )
+                
                 print(' \n')
 
                 if res[k].error != None:
