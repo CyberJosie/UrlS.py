@@ -17,7 +17,7 @@ UrlS.py Quickly gathers information available at a URL for multiple HTTP request
 
 # Download
 ```
-wget https://raw.githubusercontent.com/CyberJosie/UrlS.py/main/UrlS.py
+wget https://raw.githubusercontent.com/CyberJosie/UrlS.py/main/URLs.py
 python3 UrlS.py --help
 ```
 
